@@ -19,42 +19,14 @@ public enum DayOfWeek{
 
 class DayOfWeekMain{
     public static void main(final String[] args) {
-        getWorkingHours(DayOfWeek.MONDAY);
-//        getWorkingHours(DayOfWeek.TUESDAY);
-//        getWorkingHours(DayOfWeek.WEDNESDAY);
-//        getWorkingHours(DayOfWeek.THURSDAY);
-//        getWorkingHours(DayOfWeek.FRIDAY);
-//        getWorkingHours(DayOfWeek.SATURDAY);
-//        getWorkingHours(DayOfWeek.SUNDAY);
+        System.out.println(getWorkingHours(DayOfWeek.MONDAY));
     }
 
-    static void getWorkingHours(DayOfWeek dayOfWeek){
-        int workingHours = 0;
+    static String getWorkingHours(DayOfWeek dayOfWeek){
 
-        switch (dayOfWeek){
-            case SATURDAY:
-            case SUNDAY:
-                workingHours = 0;
-                System.out.println("Поздравляем, сейчас выходной!");
-                break;
-            case MONDAY:
-                workingHours = 40;
-                break;
-            case TUESDAY:
-                workingHours = 32;
-                break;
-            case WEDNESDAY:
-                workingHours = 24;
-                break;
-            case THURSDAY:
-                workingHours = 16;
-                break;
-            case FRIDAY:
-                workingHours = 8;
-                break;
-        }
+        DayOfWeek[] days = new DayOfWeek[2];
 
-        System.out.println("До конца рабочей недели осталось " + workingHours + " часов.");
-
+        int num = 5 - dayOfWeek.ordinal();
+        return (num > 0) ? String.valueOf(num*8) + " hours" : "Weekend!";
     }
 }
