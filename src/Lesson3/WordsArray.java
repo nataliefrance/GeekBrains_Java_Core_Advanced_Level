@@ -4,7 +4,7 @@ package Lesson3;
 // Посчитать, сколько раз встречается каждое слово.
 
 import java.util.HashMap;
-import java.util.Map;
+
 
 public class WordsArray {
     public static void main(String[] args) {
@@ -22,14 +22,24 @@ public class WordsArray {
         array[9] = "Слово4";
         array[10] = "Слово4";
 
+        //Реализация ДЗ при помощи getOrDefault()
+        HashMap<String, Integer> map = new HashMap<>();
+        for(String word : array){
+            map.put(word, map.getOrDefault(word, 0) + 1);
+        }
+        System.out.println(map);
+
+
+
+        /* Реализация ДЗ при помощи циклов
         HashMap<String, Integer> map = countWords(array);
 
         for (Map.Entry<String, Integer> s : map.entrySet()) {
             System.out.println(s.getKey() + " встречается в списке " + s.getValue() + " раз(а)");
-        }
+        }*/
 
     }
-
+    /*
     private static HashMap<String, Integer> countWords(String[] array) {
         HashMap<String, Integer> result = new HashMap<>();
 
@@ -43,5 +53,5 @@ public class WordsArray {
             result.put(word, count);
         }
         return result;
-    }
+    }*/
 }
