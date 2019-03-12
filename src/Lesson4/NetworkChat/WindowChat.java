@@ -3,9 +3,9 @@ package Lesson4.NetworkChat;
 import javax.swing.*;
 import java.awt.*;
 
-public class WindowChat extends JFrame {
+class WindowChat extends JFrame {
 
-    public WindowChat(){
+    WindowChat(){
         setTitle("Simple network chat");
         setBounds(800, 300, 400, 400);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -36,6 +36,12 @@ public class WindowChat extends JFrame {
 
         sendButton.addActionListener(e -> {
             textArea.append(textField.getText() + "\n"); //Метод append() позволяет присоединить к уже имеющемуся в поле тексту новую часть без удаления прежнего содержимого
+            textField.setText("");
+            textField.grabFocus();
+        });
+
+        textField.addActionListener(e -> {
+            textArea.append(textField.getText() + "\n");
             textField.setText("");
             textField.grabFocus();
         });
