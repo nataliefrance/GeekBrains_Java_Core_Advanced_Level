@@ -38,6 +38,14 @@ public class Main {
         t1.start();
         t2.start();
 
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
         System.arraycopy(arr1, 0, array, 0, half);
         System.arraycopy(arr2, 0, array, half, half);
 
