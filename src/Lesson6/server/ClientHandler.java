@@ -23,26 +23,21 @@ public class ClientHandler {
                 public void run() {
                     try{
                         while (true) {
-                            String msg = in.readUTF();
-                            if(msg.equalsIgnoreCase("/end")) {
+                            String message = in.readUTF();
+                            if(message.equalsIgnoreCase("/end")) {
+                                server.broadcast(socket + " отключился");
+                                removeSocket();
+                                out.writeUTF("/close");
                                 break;
                             }
-                            server.broadcast(msg);
+                            server.broadcast(message); // отослать принятое сообщение всем
                         }
                     } catch (IOException e){
                         e.printStackTrace();
                     } finally {
                         try {
                             in.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        try {
                             out.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        try {
                             socket.close();
                         } catch (IOException e){
                             e.printStackTrace();
@@ -55,11 +50,16 @@ public class ClientHandler {
         }
     }
 
-    public void sendMessage(String message){
+    void sendMessage(String message){
         try {
             out.writeUTF(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    void removeSocket(){
+        server.getClients().remove(this);
+        System.out.println("Клиент отключился");
     }
 }

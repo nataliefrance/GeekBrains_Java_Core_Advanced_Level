@@ -1,15 +1,14 @@
 package Lesson6.server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
 
-public class MainServer {
+class MainServer {
     private Vector<ClientHandler> clients; //синхронизируемый Arraylist
-    public MainServer() {
+
+    MainServer() {
         ServerSocket server = null;
         Socket socket = null;
         clients = new Vector<>();
@@ -22,23 +21,26 @@ public class MainServer {
                 //ожидаем подключения клиента
                 socket = server.accept();
                 System.out.println("Клиент подключился");
-                clients.add(new ClientHandler(this, socket));
+                clients.add(new ClientHandler(this, socket)); //добавляем новое подключение в список
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
                 socket.close();
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        }
+    }
 
-        public void broadcast(String message){
-            for (ClientHandler cl: clients) {
-                cl.sendMessage(message);
-            }
+    void broadcast(String message) {
+        for (ClientHandler cl : clients) {
+            cl.sendMessage(message);
         }
     }
+
+    public Vector<ClientHandler> getClients() {
+        return clients;
+    }
+}

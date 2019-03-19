@@ -48,14 +48,18 @@ public class Controller implements Initializable {
                 public void run() {
                     try {
                         while (true) {
-                            String msg = in.readUTF();
-                            textArea.appendText(msg + "\n");
+                            String message = in.readUTF();
+                            textArea.appendText(message + "\n");
+                            if (message.equalsIgnoreCase("/close")){
+                                break;
+                            }
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                     } finally {
                         try {
                             socket.close();
+                            System.out.println("Клиент отключился");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
