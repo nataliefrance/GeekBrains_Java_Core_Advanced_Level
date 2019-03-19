@@ -5,29 +5,24 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Vector;
 
 public class MainServer {
-    public static void main(String[] args) {
+    private Vector<ClientHandler> clients; //синхронизируемый Arraylist
+    public MainServer() {
         ServerSocket server = null;
         Socket socket = null;
+        clients = new Vector<>();
 
         try {
             server = new ServerSocket(8189);
             System.out.println("Сервер запущен");
 
-            //ожидаем подключения клиента
-            socket = server.accept();
-            System.out.println("Клиент подключился");
-
-            DataInputStream in = new DataInputStream(socket.getInputStream());
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-
             while (true) {
-                String msg = in.readUTF();
-                if(msg.equalsIgnoreCase("/end")) {
-                    break;
-                }
-                out.writeUTF("echo " + msg);
+                //ожидаем подключения клиента
+                socket = server.accept();
+                System.out.println("Клиент подключился");
+                clients.add(new ClientHandler(this, socket));
             }
 
         } catch (IOException e) {
@@ -39,5 +34,11 @@ public class MainServer {
                 e.printStackTrace();
             }
         }
+        }
+
+        public void broadcast(String message){
+            for (ClientHandler cl: clients) {
+                cl.sendMessage(message);
+            }
         }
     }
