@@ -1,63 +1,67 @@
 package Lesson5.HomeTask;
 
+import java.util.Arrays;
+
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+
 public class Main {
-    private static final int size = 10000000;
-    private static final int half = size / 2;
+    private final int SIZE = 10000000;
+    private final int THREADS_COUNT = 4;
+    private final int PART_SIZE = SIZE / THREADS_COUNT;
+    private final float[] ARRAY = new float[SIZE];
 
     public static void main(String[] args) {
-        //вынесла создание и инициализацию массива сюда, т.к. Идея ворчала из-за дублирования кода
-        float[] array = new float[size];
-        for (int i = 0; i < array.length; i++) {
-            array[i] = 1;
+        Main main = new Main();
+        Arrays.fill(main.ARRAY, 1f);
+
+        main.simpleMethod(main.ARRAY);
+        main.methodWithThreads(main.ARRAY);
+    }
+
+    private void methodWithThreads(float[] array){
+        long startTime = System.currentTimeMillis();
+        float[][] splittedArray = new float[THREADS_COUNT][PART_SIZE];
+        Thread[] threadArray = new Thread[THREADS_COUNT];
+        for (int i = 0; i < THREADS_COUNT; i++) {
+            // будем копировать в двумерный массив данные из основного потока со сдвигом
+            //System.arraycopy(массив-источник, откуда начинаем брать данные из массива-источника,
+            //массив-назначение, откуда начинаем записывать данные в массив-назначение, сколько ячеек копируем)
+            System.arraycopy(array, PART_SIZE * i, splittedArray[i], 0, PART_SIZE);
+            int u = i;
+            threadArray[i] = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // считаем массив со сдвигом
+                    int n = u * PART_SIZE;
+                    for (int j = 0; j < PART_SIZE; j++, n++) {
+                        splittedArray[u][j] = (float) (splittedArray[u][j] * sin(0.2f + n / 5) * cos(0.2f + n / 5) * cos(0.4f + n / 2));
+                    }
+                }
+            });
+            threadArray[i].start();
         }
-
-        simpleMethod(array);
-        methodWithThreads(array);
-
-    }
-
-    private static void simpleMethod(float[] array){
-        long startTime = System.currentTimeMillis();
-        reCalculate(array);
-        System.out.println("Время работы simpleMethod: " + (System.currentTimeMillis() - startTime));
-    }
-
-    private static void methodWithThreads(float[] array){
-        long startTime = System.currentTimeMillis();
-        float[] arr1 = new float[half];
-        float[] arr2 = new float[half];
-
-        //System.arraycopy(массив-источник, откуда начинаем брать данные из массива-источника,
-        //массив-назначение, откуда начинаем записывать данные в массив-назначение, сколько ячеек копируем)
-        System.arraycopy(array, 0, arr1, 0, half);
-        System.arraycopy(array, half, arr2, 0, half);
-
-        MyThread t1 = new MyThread(arr1);
-        MyThread t2 = new MyThread(arr2);
-
-        t1.start();
-        t2.start();
-
         try {
-            t1.join();
-            t2.join();
+            for (int i = 0; i < THREADS_COUNT; i++) {
+                threadArray[i].join();
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
-        System.arraycopy(arr1, 0, array, 0, half);
-        System.arraycopy(arr2, 0, array, half, half);
-
+        // складываем массив обратно в исходный массив
+        for (int i = 0; i < THREADS_COUNT; i++) {
+            System.arraycopy(splittedArray[i], 0, array, i * PART_SIZE, PART_SIZE);
+        }
+        // определяем время
         System.out.println("Время работы methodWithThreads: " + (System.currentTimeMillis() - startTime));
     }
 
-    static void reCalculate(float[] array){
+    private void simpleMethod(float[] array){
+        long startTime = System.currentTimeMillis();
         for (int i = 0; i < array.length; i++) {
             array[i] = (float)(array[i] * Math.sin(0.2f + i / 5) * Math.cos(0.2f + i / 5) * Math.cos(0.4f + i / 2));
         }
+        System.out.println("Время работы simpleMethod: " + (System.currentTimeMillis() - startTime));
     }
-
-
 }
 
