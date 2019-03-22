@@ -21,27 +21,26 @@ public class ClientHandler {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    try{
+                    try {
                         while (true) {
                             String message = in.readUTF();
-                            if(message.equalsIgnoreCase("/end")) {
-                                server.broadcast(socket + " отключился");
-                                removeSocket();
-                                out.writeUTF("/close");
+                            if (message.equalsIgnoreCase("/end")) {
+                                out.writeUTF("/serverClose");
                                 break;
                             }
                             server.broadcast(message); // отослать принятое сообщение всем
                         }
-                    } catch (IOException e){
+                    } catch (IOException e) {
                         e.printStackTrace();
                     } finally {
                         try {
                             in.close();
                             out.close();
                             socket.close();
-                        } catch (IOException e){
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
+                        server.unsubscribe(ClientHandler.this);
                     }
                 }
             }).start();
@@ -50,16 +49,11 @@ public class ClientHandler {
         }
     }
 
-    void sendMessage(String message){
+    void sendMessage(String message) {
         try {
             out.writeUTF(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    void removeSocket(){
-        server.getClients().remove(this);
-        System.out.println("Клиент отключился");
     }
 }

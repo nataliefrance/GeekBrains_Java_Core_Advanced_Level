@@ -21,7 +21,7 @@ class MainServer {
                 //ожидаем подключения клиента
                 socket = server.accept();
                 System.out.println("Клиент подключился");
-                clients.add(new ClientHandler(this, socket)); //добавляем новое подключение в список
+                subscribe(new ClientHandler(this, socket)); //добавляем новое подключение в список
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,7 +40,15 @@ class MainServer {
         }
     }
 
-    public Vector<ClientHandler> getClients() {
-        return clients;
+    public void subscribe(ClientHandler handler){
+        clients.add(handler);
     }
+
+    public void unsubscribe(ClientHandler handler){
+        clients.add(handler);
+    }
+
+//    public Vector<ClientHandler> getClients() {
+//        return clients;
+//    }
 }
