@@ -20,32 +20,14 @@ public class Client {
             // писать серверу
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
 
-            //поток для отправки сообщений серверу
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        System.out.println("Напишите сообщение серверу:");
-                        while (true) {
-                            String message = reader.readLine(); // пишем сообщение в консоль
-                            out.write(message + "\n"); // отправляем сообщение на сервер
-                            out.flush();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-            reader.close();
-
             //поток для получения сообщений от сервера
-            new Thread(new Runnable() {
+            Thread t1 = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         while(true){
                             String serverMsg = in.readLine(); // ждём сообщение от сервера
-                            System.out.println("Сервер говорит: " + serverMsg);
+                            System.out.println("Сервер: " + serverMsg);
                             if (serverMsg.equalsIgnoreCase("/serverClosed")) {
                                 break;
                             }
@@ -63,7 +45,33 @@ public class Client {
                         }
                     }
                 }
-            }).start();
+            });
+            t1.start();
+
+            //поток для отправки сообщений серверу
+            Thread t2 = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        System.out.println("Напишите сообщение серверу:");
+                        while (true) {
+                            String message = reader.readLine(); // пишем сообщение в консоль
+                            out.write(message + "\n"); // отправляем сообщение на сервер
+                            out.flush();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+            t2.setDaemon(true);
+            t2.start();
 
         } catch (IOException e) {
             e.printStackTrace();

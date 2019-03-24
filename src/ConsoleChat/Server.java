@@ -24,13 +24,13 @@ public class Server {
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
 
             //поток для получения сообщений от клиента
-            new Thread(new Runnable() {
+            Thread t1 = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         while (true) {
                             String msgFromClient = in.readLine(); // ждём сообщение от клиента
-                            System.out.println("Клиент говорит: " + msgFromClient);
+                            System.out.println("Клиент: " + msgFromClient);
                             if(msgFromClient.equalsIgnoreCase("/end")){
                                 out.write("/serverClosed" + "\n"); // отправляем сообщение клиенту
                                 out.flush();
@@ -52,10 +52,11 @@ public class Server {
                         }
                     }
                 }
-            }).start();
+            });
+            t1.start();
 
             //Поток для отправки сообщений клиенту
-            new Thread(new Runnable() {
+            Thread t2 = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -66,10 +67,18 @@ public class Server {
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
+                    } finally {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-            }).start();
-            reader.close();
+            });
+            t2.setDaemon(true);
+            t2.start();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
