@@ -8,11 +8,29 @@
 <?scenebuilder-stylesheet /css/Styles.css?>
 <?import java.net.URL?>
 
+<?import javafx.scene.control.PasswordField?>
+<!--<VBox alignment="center" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.121" fx:controller="Lesson6.client.Controller">-->
+<!--<stylesheets><URL value="@/Lesson6/client/css/Style.css"/> </stylesheets>-->
+<!--<TextArea fx:id="textArea" editable="false" VBox.vgrow="ALWAYS" />-->
+<!--<HBox>-->
+    <!--<TextField fx:id="textField" onAction="#sendMsg" promptText="Введите сообщение.." HBox.hgrow="ALWAYS" />-->
+    <!--<Button fx:id="btn" onAction="#sendMsg" text="Send" />-->
+<!--</HBox>-->
+<!--</VBox>-->
+
 <VBox alignment="center" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.121" fx:controller="Lesson6.client.Controller">
 <stylesheets><URL value="@/Lesson6/client/css/Style.css"/> </stylesheets>
+
+<HBox fx:id="upperPanel" >
+    <TextField HBox.hgrow="ALWAYS" promptText="Логин" fx:id="loginField"/>
+    <PasswordField promptText="Пароль" fx:id="passwordField" onAction="#tryToAuth" />
+    <Button text="Авторизоваться" onAction="#tryToAuth" />
+</HBox>
+
 <TextArea fx:id="textArea" editable="false" VBox.vgrow="ALWAYS" />
-<HBox>
-    <TextField fx:id="textField" onAction="#sendMsg" promptText="Введите сообщение.." HBox.hgrow="ALWAYS" />
+
+<HBox fx:id="bottomPanel" managed="false" visible="false">
+    <TextField fx:id="textField" onAction="#sendMsg" promptText="Введите текст" HBox.hgrow="ALWAYS" />
     <Button fx:id="btn" onAction="#sendMsg" text="Send" />
 </HBox>
 </VBox>

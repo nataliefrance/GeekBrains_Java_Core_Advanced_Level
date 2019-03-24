@@ -1,57 +1,59 @@
 package Lesson6.server;
 
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.Vector;
 
-class MainServer {
-    private Vector<ClientHandler> clients; //синхронизируемый Arraylist
+public class MainServer {
+    private Vector<ClientHandler> clients;
 
-    MainServer() {
+    public MainServer() throws SQLException {
         ServerSocket server = null;
         Socket socket = null;
         clients = new Vector<>();
 
         try {
+            AuthService.connect();
             server = new ServerSocket(8189);
-            System.out.println("Сервер запущен");
+            System.out.println("Сервер запущен!");
 
             while (true) {
-                //ожидаем подключения клиента
                 socket = server.accept();
                 System.out.println("Клиент подключился");
-                subscribe(new ClientHandler(this, socket)); //добавляем новое подключение в список
+                new ClientHandler(this,socket);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
                 socket.close();
-                server.close();
-                System.out.println("Сервер отключён");
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            try {
+                server.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            AuthService.disconnect();
         }
     }
 
-    void broadcast(String message) {
-        for (ClientHandler cl : clients) {
-            cl.sendMessage(message);
+    public void subscribe(ClientHandler client) {
+        clients.add(client);
+    }
+
+    public void unsubscribe(ClientHandler client) {
+        clients.remove(client);
+    }
+
+    public void broadcastMsg(String msg) {
+        for (ClientHandler o : clients) {
+            o.sendMsg(msg);
         }
     }
-
-    public void subscribe(ClientHandler handler){
-        clients.add(handler);
-    }
-
-    public void unsubscribe(ClientHandler handler){
-        clients.remove(handler);
-        System.out.println("Клиент отключился.");
-    }
-
-//    public Vector<ClientHandler> getClients() {
-//        return clients;
-//    }
 }
