@@ -28,6 +28,8 @@ class MainServer {
         } finally {
             try {
                 socket.close();
+                server.close();
+                System.out.println("Сервер отключён");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -45,7 +47,8 @@ class MainServer {
     }
 
     public void unsubscribe(ClientHandler handler){
-        clients.add(handler);
+        clients.remove(handler);
+        System.out.println("Клиент отключился.");
     }
 
 //    public Vector<ClientHandler> getClients() {

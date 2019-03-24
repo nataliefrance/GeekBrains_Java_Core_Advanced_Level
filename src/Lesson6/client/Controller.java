@@ -11,11 +11,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.ResourceBundle;
 
-//полписываем клиента на интерфейс Initializable для того,
+//подписываем клиента на интерфейс Initializable для того,
 // чтобы при запуске он пытался подключиться к нашему серверу
 public class Controller implements Initializable {
     @FXML
@@ -50,7 +48,7 @@ public class Controller implements Initializable {
                         while (true) {
                             String message = in.readUTF();
                             textArea.appendText(message + "\n");
-                            if (message.equalsIgnoreCase("/close")){
+                            if (message.equalsIgnoreCase("/serverClosed")){
                                 break;
                             }
                         }
@@ -59,7 +57,7 @@ public class Controller implements Initializable {
                     } finally {
                         try {
                             socket.close();
-                            System.out.println("Клиент отключился");
+                            System.out.println("Клиент отключился. Сокет закрыт.");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

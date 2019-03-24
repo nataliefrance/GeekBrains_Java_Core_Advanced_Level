@@ -25,7 +25,7 @@ public class ClientHandler {
                         while (true) {
                             String message = in.readUTF();
                             if (message.equalsIgnoreCase("/end")) {
-                                out.writeUTF("/serverClose");
+                                out.writeUTF("/serverClosed");
                                 break;
                             }
                             server.broadcast(message); // отослать принятое сообщение всем
