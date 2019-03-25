@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.sql.SQLException;
 
-public class ClientHandler {
+class ClientHandler {
 
     private MainServer server;
     private Socket socket;
@@ -14,7 +14,7 @@ public class ClientHandler {
     private DataInputStream in;
     private String nick;
 
-    public ClientHandler(MainServer server, Socket socket) {
+    ClientHandler(MainServer server, Socket socket) {
         try {
             this.server = server;
             this.socket = socket;
@@ -28,14 +28,18 @@ public class ClientHandler {
                         while (true) {
                             String str = in.readUTF();
 
-                            if(str.startsWith("/auth")) {
+                            if (str.startsWith("/auth")) {
                                 String[] tokens = str.split(" ");
                                 String newNick = AuthService.getNickByLoginAndPass(tokens[1], tokens[2]);
-                                if(newNick != null) {
-                                    sendMsg("/authok");
-                                    nick = newNick;
-                                    server.subscribe(ClientHandler.this);
-                                    break;
+                                if (newNick != null) {
+                                    if (!server.isNickBusy(newNick)) {
+                                        sendMsg("/authok");
+                                        nick = newNick;
+                                        server.subscribe(ClientHandler.this);
+                                        break;
+                                    } else {
+                                        sendMsg("Учётная запись уже используется");
+                                    }
                                 } else {
                                     sendMsg("Неверный логин/пароль");
                                 }
@@ -43,12 +47,19 @@ public class ClientHandler {
                         }
 
                         while (true) {
-                            String str = in.readUTF();
-                            if (str.equals("/end")) {
-                                out.writeUTF("/serverclosed");
-                                break;
+                            String message = in.readUTF();
+                            if (message.startsWith("/")) {
+                                if (message.equals("/end")) {
+                                    out.writeUTF("/serverclosed");
+                                    break;
+                                }
+                                if (message.startsWith("/w")) {
+                                    String[] tokens = message.split(" ", 3);
+                                    server.sendPersonalMessage(ClientHandler.this, tokens[1], tokens[2]);
+                                }
+                            } else {
+                                server.broadcastMsg(nick + ": " + message);
                             }
-                            server.broadcastMsg(nick + " : " + str);
                         }
 
                     } catch (IOException | SQLException e) {
@@ -57,15 +68,7 @@ public class ClientHandler {
                     } finally {
                         try {
                             in.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        try {
                             out.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        try {
                             socket.close();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -80,11 +83,15 @@ public class ClientHandler {
         }
     }
 
-    public void sendMsg(String msg) {
+    void sendMsg(String message) {
         try {
-            out.writeUTF(msg);
+            out.writeUTF(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    String getNick() {
+        return nick;
     }
 }

@@ -6,10 +6,10 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.util.Vector;
 
-public class MainServer {
+class MainServer {
     private Vector<ClientHandler> clients;
 
-    public MainServer() throws SQLException {
+    MainServer() throws SQLException {
         ServerSocket server = null;
         Socket socket = null;
         clients = new Vector<>();
@@ -30,10 +30,6 @@ public class MainServer {
         } finally {
             try {
                 socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
                 server.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -42,17 +38,37 @@ public class MainServer {
         }
     }
 
-    public void subscribe(ClientHandler client) {
+    void subscribe(ClientHandler client) {
         clients.add(client);
     }
 
-    public void unsubscribe(ClientHandler client) {
+    void unsubscribe(ClientHandler client) {
         clients.remove(client);
     }
 
-    public void broadcastMsg(String msg) {
+    void broadcastMsg(String message) {
         for (ClientHandler o : clients) {
-            o.sendMsg(msg);
+            o.sendMsg(message);
         }
+    }
+
+    void sendPersonalMessage(ClientHandler from, String nickTo, String message){
+        for (ClientHandler o : clients) {
+            if (nickTo.equals(o.getNick())){
+                o.sendMsg("from " + from.getNick() + ": " + message);
+                from.sendMsg("to " + o.getNick() + ": " + message);
+                return;
+            }
+        }
+        from.sendMsg("Клиент с ником " + nickTo + " не найден");
+    }
+
+    boolean isNickBusy(String nick){
+        for (ClientHandler o : clients) {
+            if (o.getNick().equals(nick)){
+                return true;
+            }
+        }
+        return false;
     }
 }
