@@ -56,20 +56,26 @@ class ClientHandler {
                                 if (message.equals("/end")) {
                                     out.writeUTF("/serverclosed");
                                     break;
-                                }
+                                } else
                                 if (message.startsWith("/w")) {
                                     String[] tokens = message.split(" ", 3);
-                                    server.sendPersonalMessage(ClientHandler.this, tokens[1], tokens[2]);
-                                }
+                                    try {
+                                        server.sendPersonalMessage(ClientHandler.this, tokens[1], tokens[2]);
+                                    } catch (ArrayIndexOutOfBoundsException e){
+                                        sendMsg("Вы ввели не всё сообщение");
+                                    }
+                                } else
                                 if (message.startsWith("/blacklist")){
                                     String[] tokens = message.split(" ");
                                     blackList.add(tokens[1]);
                                     sendMsg("Вы добавили пользователя " + tokens[1] + " в чёрный список");
-                                }
+                                } else
                                 if(message.startsWith("/removefromblacklist")){
                                     String[] tokens = message.split(" ");
                                     blackList.remove(tokens[1]);
                                     sendMsg("Вы удалили пользователя " + tokens[1] + " из чёрного списка");
+                                } else {
+                                    sendMsg("Неправильная команда");
                                 }
                             } else {
                                 server.broadcastMsg(ClientHandler.this, nick + ": " + message);
