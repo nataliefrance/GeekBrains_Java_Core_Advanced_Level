@@ -120,7 +120,6 @@ public class Controller {
                         while (true) {
                             String message = in.readUTF();
                             if (message.equals("/serverclosed"))  {
-                                // closeApp();
                                 break;
                             }
                             textArea.appendText(message + "\n");

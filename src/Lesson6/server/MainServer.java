@@ -22,7 +22,7 @@ class MainServer {
             while (true) {
                 socket = server.accept();
                 System.out.println("Клиент подключился");
-                new ClientHandler(this,socket);
+                new ClientHandler(this, socket);
             }
 
         } catch (IOException e) {
@@ -54,10 +54,10 @@ class MainServer {
         }
     }
 
-    void sendPersonalMessage(ClientHandler from, String nickTo, String message){
+    void sendPersonalMessage(ClientHandler from, String nickTo, String message) {
         for (ClientHandler o : clients) {
-            if (nickTo.equals(o.getNick())){
-                if (o.checkBlackList(from.getNick())){
+            if (nickTo.equals(o.getNick())) {
+                if (o.checkBlackList(from.getNick())) {
                     from.sendMsg("Клиент " + nickTo + " добавил Вас в чёрный список");
                     return;
                 }
@@ -70,12 +70,13 @@ class MainServer {
                     return;
                 }
             }
-        } from.sendMsg("Клиент с ником " + nickTo + " не найден");
+        }
+        from.sendMsg("Клиент с ником " + nickTo + " не найден");
     }
 
-    boolean isNickBusy(String nick){
+    boolean isNickBusy(String nick) {
         for (ClientHandler o : clients) {
-            if (o.getNick().equals(nick)){
+            if (o.getNick().equals(nick)) {
                 return true;
             }
         }

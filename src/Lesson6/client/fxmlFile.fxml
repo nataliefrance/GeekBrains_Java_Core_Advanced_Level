@@ -24,7 +24,7 @@
 <HBox fx:id="upperPanel" >
     <TextField HBox.hgrow="ALWAYS" promptText="Логин" fx:id="loginField"/>
     <PasswordField promptText="Пароль" fx:id="passwordField" onAction="#tryToAuth" />
-    <Button text="Авторизоваться" onAction="#tryToAuth" />
+    <Button text="Войти" onAction="#tryToAuth" />
 </HBox>
 
 <TextArea fx:id="textArea" editable="false" VBox.vgrow="ALWAYS" />

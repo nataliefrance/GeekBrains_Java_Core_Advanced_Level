@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +30,14 @@ class ClientHandler {
                 @Override
                 public void run() {
                     try {
+//                        try {
+//                            Thread.sleep(5000);
+//                            System.out.println("пользователь не авторизовался");
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
                         while (true) {
                             String str = in.readUTF();
-
                             if (str.startsWith("/auth")) {
                                 String[] tokens = str.split(" ");
                                 String newNick = AuthService.getNickByLoginAndPass(tokens[1], tokens[2]);
@@ -67,10 +73,14 @@ class ClientHandler {
                                 } else
                                 if (message.startsWith("/blacklist")){
                                     String[] tokens = message.split(" ");
-                                    blackList.add(tokens[1]);
-                                    sendMsg("Вы добавили пользователя " + tokens[1] + " в чёрный список");
+                                    try {
+                                        blackList.add(tokens[1]);
+                                        sendMsg("Вы добавили пользователя " + tokens[1] + " в чёрный список");
+                                    } catch (ArrayIndexOutOfBoundsException e){
+                                        sendMsg("Вы ввели не всё сообщение");
+                                    }
                                 } else
-                                if(message.startsWith("/removefromblacklist")){
+                                if(message.startsWith("/remove")){
                                     String[] tokens = message.split(" ");
                                     blackList.remove(tokens[1]);
                                     sendMsg("Вы удалили пользователя " + tokens[1] + " из чёрного списка");
@@ -81,18 +91,23 @@ class ClientHandler {
                                 server.broadcastMsg(ClientHandler.this, nick + ": " + message);
                             }
                         }
-
                     } catch (IOException | SQLException e) {
                         e.printStackTrace();
                     } finally {
                         try {
+                            AuthService.saveBlacklist(nick, blackList);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        try {
                             in.close();
                             out.close();
                             socket.close();
-                        } catch (IOException e) {
+                        } catch (IOException  e) {
                             e.printStackTrace();
                         }
                         server.unsubscribe(ClientHandler.this);
+                        System.out.println("Клиент отключился");
                     }
                 }
             }).start();
