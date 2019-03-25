@@ -5,6 +5,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 class ClientHandler {
 
@@ -13,11 +15,13 @@ class ClientHandler {
     private DataOutputStream out;
     private DataInputStream in;
     private String nick;
+    private List<String> blackList;
 
     ClientHandler(MainServer server, Socket socket) {
         try {
             this.server = server;
             this.socket = socket;
+            this.blackList = new ArrayList<>();
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
 
@@ -57,14 +61,23 @@ class ClientHandler {
                                     String[] tokens = message.split(" ", 3);
                                     server.sendPersonalMessage(ClientHandler.this, tokens[1], tokens[2]);
                                 }
+                                if (message.startsWith("/blacklist")){
+                                    String[] tokens = message.split(" ");
+                                    blackList.add(tokens[1]);
+                                    sendMsg("Вы добавили пользователя " + tokens[1] + " в чёрный список");
+                                }
+                                if(message.startsWith("/removefromblacklist")){
+                                    String[] tokens = message.split(" ");
+                                    blackList.remove(tokens[1]);
+                                    sendMsg("Вы удалили пользователя " + tokens[1] + " из чёрного списка");
+                                }
                             } else {
-                                server.broadcastMsg(nick + ": " + message);
+                                server.broadcastMsg(ClientHandler.this, nick + ": " + message);
                             }
                         }
 
                     } catch (IOException | SQLException e) {
                         e.printStackTrace();
-
                     } finally {
                         try {
                             in.close();
@@ -81,6 +94,10 @@ class ClientHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    boolean checkBlackList(String nick){
+        return blackList.contains(nick);
     }
 
     void sendMsg(String message) {

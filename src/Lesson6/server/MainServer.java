@@ -46,21 +46,31 @@ class MainServer {
         clients.remove(client);
     }
 
-    void broadcastMsg(String message) {
+    void broadcastMsg(ClientHandler from, String message) {
         for (ClientHandler o : clients) {
-            o.sendMsg(message);
+            if (!from.checkBlackList(o.getNick())) {
+                o.sendMsg(message);
+            }
         }
     }
 
     void sendPersonalMessage(ClientHandler from, String nickTo, String message){
         for (ClientHandler o : clients) {
             if (nickTo.equals(o.getNick())){
-                o.sendMsg("from " + from.getNick() + ": " + message);
-                from.sendMsg("to " + o.getNick() + ": " + message);
-                return;
+                if (o.checkBlackList(from.getNick())){
+                    from.sendMsg("Клиент " + nickTo + " добавил Вас в чёрный список");
+                    return;
+                }
+                if (!from.checkBlackList(nickTo)) {
+                    o.sendMsg("from " + from.getNick() + ": " + message);
+                    from.sendMsg("to " + nickTo + ": " + message);
+                    return;
+                } else {
+                    from.sendMsg("Клиент " + nickTo + " в чёрном списке");
+                    return;
+                }
             }
-        }
-        from.sendMsg("Клиент с ником " + nickTo + " не найден");
+        } from.sendMsg("Клиент с ником " + nickTo + " не найден");
     }
 
     boolean isNickBusy(String nick){
