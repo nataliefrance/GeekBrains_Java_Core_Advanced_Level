@@ -41,130 +41,6 @@ public class Controller {
     TextField textField;
 
     @FXML
-    Button btn1;
-
-    @FXML
-    HBox bottomPanel;
-
-    @FXML
-    HBox upperPanel;
-
-    @FXML
-    TextField loginField;
-
-    @FXML
-    PasswordField passwordField;
-
-    private boolean isAuthorized;
-
-    Socket socket;
-    DataInputStream in;
-    DataOutputStream out;
-
-    final String IP_ADRESS = "localhost";
-    final int PORT = 8189;
-
-    public void setAuthorized(boolean isAuthorized) {
-        this.isAuthorized = isAuthorized;
-        if(!isAuthorized) {
-            upperPanel.setVisible(true);
-            upperPanel.setManaged(true);
-            bottomPanel.setVisible(false);
-            bottomPanel.setManaged(false);
-        } else {
-            upperPanel.setVisible(false);
-            upperPanel.setManaged(false);
-            bottomPanel.setVisible(true);
-            bottomPanel.setManaged(true);
-        }
-    }
-
-    public void tryToAuth(ActionEvent actionEvent) {
-
-        if(socket == null || socket.isClosed()) {
-            connect();
-        }
-
-        try {
-            out.writeUTF("/auth " + loginField.getText() + " " + passwordField.getText());
-            loginField.clear();
-            passwordField.clear();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    public void connect() {
-
-        try {
-            socket = new Socket(IP_ADRESS, PORT);
-            in = new DataInputStream(socket.getInputStream());
-            out = new DataOutputStream(socket.getOutputStream());
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (true) {
-                            String str = in.readUTF();
-                            if (str.startsWith("/authok")) {
-                                setAuthorized(true);
-                                break;
-                            } else {
-                                textArea.appendText(str + "\n");
-                            }
-                        }
-
-                        while (true) {
-                            String str = in.readUTF();
-                            if (str.equals("/serverclosed"))  {
-                                // closeApp();
-                                break;
-                            }
-                            textArea.appendText(str + "\n");
-                        }
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        setAuthorized(false);
-                    }
-                }
-            }).start();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void sendMsg() {
-        try {
-            out.writeUTF(textField.getText());
-            textField.clear();
-            textField.requestFocus();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
-/*
-public class Controller {
-    @FXML
-    private
-    TextArea textArea;
-
-    @FXML
-    private
-    TextField textField;
-
-    @FXML
     Button btn;
 
     @FXML
@@ -232,24 +108,23 @@ public class Controller {
                 public void run() {
                     try {
                         while (true) {
-                            String str = in.readUTF();
-                            if (str.startsWith("/authok")) {
+                            String message = in.readUTF();
+                            if (message.startsWith("/authok")) {
                                 setAuthorized(true);
                                 break;
                             } else {
-                                textArea.appendText(str + "\n");
+                                textArea.appendText(message + "\n");
                             }
                         }
 
                         while (true) {
-                            String str = in.readUTF();
-                            if (str.equals("/serverclosed"))  {
+                            String message = in.readUTF();
+                            if (message.equals("/serverclosed"))  {
                                 // closeApp();
                                 break;
                             }
-                            textArea.appendText(str + "\n");
+                            textArea.appendText(message + "\n");
                         }
-
                     } catch (IOException e) {
                         e.printStackTrace();
                     } finally {
@@ -278,4 +153,3 @@ public class Controller {
         }
     }
 }
-*/
