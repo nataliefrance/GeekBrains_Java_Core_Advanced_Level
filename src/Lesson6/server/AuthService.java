@@ -1,6 +1,7 @@
 package Lesson6.server;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 class AuthService {
@@ -34,18 +35,53 @@ class AuthService {
         return null;
     }
 
-    /*
-    // --------Заполнение таблицы--------
-	public static void WriteDB() throws SQLException
-	{statmt.execute("INSERT INTO 'users' ('name', 'phone') VALUES ('Masha', 456123); ");}
-    */
+    static List<String> loadBlacklist(String idNick) throws SQLException {
+        List<String> blacklist = new ArrayList<>();
+
+        String sql = String.format("SELECT ignoreNick FROM blacklist" + idNick);
+        ResultSet rs = stmt.executeQuery(sql);
+
+        while (rs.next()) {
+            blacklist.add(rs.getString("ignoreNick"));
+        }
+        return blacklist;
+    }
 
     static void saveBlacklist(String idNick, List<String> blacklist) throws SQLException {
+        //удаляем все предыдущие данные
+        String delete = String.format("DELETE FROM blacklist" + idNick);
+        stmt.execute(delete);
+
         for (String ignoreNick : blacklist) {
             String sql = String.format("INSERT INTO 'blacklist" + idNick + "' ('ignoreNick') VALUES('" + ignoreNick + "');");
             stmt.execute(sql);
         }
     }
+
+//    static List<String> loadBlacklist(String idNick) throws SQLException {
+//        List<String> blacklist = new ArrayList<>();
+//
+//        String sql = String.format("SELECT " + idNick + " FROM blacklist;");
+//        ResultSet rs = stmt.executeQuery(sql);
+//
+//        while (rs.next()) {
+//            blacklist.add(rs.getString(idNick));
+//        }
+//        return blacklist;
+//    }
+
+//    static void saveBlacklist(String idNick, List<String> blacklist) throws SQLException {
+//
+//        //удаляем все предыдущие данные
+////        String delete = String.format("DELETE FROM 'blacklist';");
+////        stmt.execute(delete);
+//
+//        //запиываем новые значения
+//        for (String ignoreNick : blacklist) {
+//            String sql = String.format("INSERT INTO 'blacklist' ('" + idNick + "') VALUES('" + ignoreNick + "');");
+//            stmt.execute(sql);
+//        }
+//    }
 
     static void disconnect() {
         try {
@@ -55,3 +91,8 @@ class AuthService {
         }
     }
 }
+/*
+    // --------Заполнение таблицы--------
+	public static void WriteDB() throws SQLException
+	{statmt.execute("INSERT INTO 'users' ('name', 'phone') VALUES ('Masha', 456123); ");}
+    */

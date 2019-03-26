@@ -5,7 +5,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +29,7 @@ class ClientHandler {
                 @Override
                 public void run() {
                     try {
-//                        try {
-//                            Thread.sleep(5000);
-//                            System.out.println("пользователь не авторизовался");
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
+
                         while (true) {
                             String str = in.readUTF();
                             if (str.startsWith("/auth")) {
@@ -45,6 +39,7 @@ class ClientHandler {
                                     if (!server.isNickBusy(newNick)) {
                                         sendMsg("/authok");
                                         nick = newNick;
+                                        blackList = AuthService.loadBlacklist(nick);
                                         server.subscribe(ClientHandler.this);
                                         break;
                                     } else {
