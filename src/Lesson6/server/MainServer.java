@@ -16,7 +16,7 @@ class MainServer {
 
         try {
             AuthService.connect();
-            server = new ServerSocket(8189);
+            server = new ServerSocket(8190);
             System.out.println("Сервер запущен!");
 
             while (true) {
@@ -40,10 +40,12 @@ class MainServer {
 
     void subscribe(ClientHandler client) {
         clients.add(client);
+        broadcastClientlist();
     }
 
     void unsubscribe(ClientHandler client) {
         clients.remove(client);
+        broadcastClientlist();
     }
 
     void broadcastMsg(ClientHandler from, String message) {
@@ -51,6 +53,21 @@ class MainServer {
             if (!from.checkBlackList(o.getNick())) {
                 o.sendMsg(message);
             }
+        }
+    }
+
+    void broadcastClientlist(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("/clientlist ");
+
+        for (ClientHandler o : clients) {
+            sb.append(o.getNick() + " ");
+        }
+
+        String out = sb.toString();
+
+        for (ClientHandler o : clients) {
+            o.sendMsg(out);
         }
     }
 
@@ -81,5 +98,9 @@ class MainServer {
             }
         }
         return false;
+    }
+
+    public Vector<ClientHandler> getClients() {
+        return clients;
     }
 }

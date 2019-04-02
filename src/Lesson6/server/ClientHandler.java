@@ -1,5 +1,4 @@
 package Lesson6.server;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -8,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-class ClientHandler {
+public class ClientHandler {
 
     private MainServer server;
     private Socket socket;
@@ -29,7 +28,6 @@ class ClientHandler {
                 @Override
                 public void run() {
                     try {
-
                         while (true) {
                             String str = in.readUTF();
                             if (str.startsWith("/auth")) {
@@ -41,6 +39,7 @@ class ClientHandler {
                                         nick = newNick;
                                         blackList = AuthService.loadBlacklist(nick);
                                         server.subscribe(ClientHandler.this);
+                                        loadHistory(AuthService.loadHistory());
                                         break;
                                     } else {
                                         sendMsg("Учётная запись уже используется");
@@ -84,6 +83,7 @@ class ClientHandler {
                                 }
                             } else {
                                 server.broadcastMsg(ClientHandler.this, nick + ": " + message);
+                                AuthService.saveToHistory(nick, message);
                             }
                         }
                     } catch (IOException | SQLException e) {
@@ -114,6 +114,16 @@ class ClientHandler {
 
     boolean checkBlackList(String nick){
         return blackList.contains(nick);
+    }
+
+    void loadHistory(List<String> history){
+        for (int i = 0; i < history.size(); i++) {
+            try {
+                out.writeUTF(history.get(i));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     void sendMsg(String message) {

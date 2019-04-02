@@ -58,6 +58,23 @@ class AuthService {
         }
     }
 
+    static void saveToHistory(String nick, String message) throws SQLException {
+        String sql = String.format("INSERT INTO 'history' ('message') VALUES('" + nick + ": " + message + "');");
+        stmt.execute(sql);
+    }
+
+    static List<String> loadHistory() throws SQLException {
+        List<String> history = new ArrayList<>();
+
+        String sql = String.format("SELECT message FROM history");
+        ResultSet rs = stmt.executeQuery(sql);
+
+        while (rs.next()) {
+            history.add(rs.getString("message"));
+        }
+        return history;
+    }
+
 //    static List<String> loadBlacklist(String idNick) throws SQLException {
 //        List<String> blacklist = new ArrayList<>();
 //
