@@ -1,37 +1,22 @@
 package Lesson6.client;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
-import java.net.URL;
-import java.util.ResourceBundle;
-
-//подписываем клиента на интерфейс Initializable для того,
-// чтобы при запуске он пытался подключиться к нашему серверу
-
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
-
+import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 
 public class Controller {
     @FXML
@@ -55,6 +40,12 @@ public class Controller {
     @FXML
     PasswordField passwordField;
 
+    @FXML
+    ListView<String> clientList;
+
+    @FXML
+    List<TextArea> textAreas;
+
     private boolean isAuthorized;
 
     Socket socket;
@@ -62,26 +53,33 @@ public class Controller {
     DataOutputStream out;
 
     final String IP_ADRESS = "localhost";
-    final int PORT = 8189;
+    final int PORT = 8190;
 
-    public void setAuthorized(boolean isAuthorized) {
+    private void setAuthorized(boolean isAuthorized) {
         this.isAuthorized = isAuthorized;
-        if(!isAuthorized) {
+        textAreas = new ArrayList<>();
+        textAreas.add(textArea);
+        if (!isAuthorized) {
             upperPanel.setVisible(true);
             upperPanel.setManaged(true);
             bottomPanel.setVisible(false);
             bottomPanel.setManaged(false);
+            clientList.setVisible(false);
+            clientList.setManaged(false);
         } else {
             upperPanel.setVisible(false);
             upperPanel.setManaged(false);
             bottomPanel.setVisible(true);
             bottomPanel.setManaged(true);
+            clientList.setVisible(true);
+            clientList.setManaged(true);
         }
     }
 
-    public void tryToAuth(ActionEvent actionEvent) {
 
-        if(socket == null || socket.isClosed()) {
+
+    public void tryToAuth(ActionEvent actionEvent) {
+        if (socket == null || socket.isClosed()) {
             connect();
         }
 
@@ -95,14 +93,12 @@ public class Controller {
     }
 
 
-
-    public void connect() {
-
+    private void connect() {
         try {
             socket = new Socket(IP_ADRESS, PORT);
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-
+            setAuthorized(false);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -113,18 +109,35 @@ public class Controller {
                                 setAuthorized(true);
                                 break;
                             } else {
+                                for (TextArea area : textAreas) {
+                                    area.appendText(message + "\n");
+                                }
+                            }
+                        }
+                        getHistory();
+                        while (true) {
+                            String message = in.readUTF();
+                            if (message.startsWith("/")) {
+                                if (message.equals("/serverclosed")) {
+                                    break;
+                                }
+                                if(message.startsWith("/clientlist")){
+                                    String[] tokens = message.split(" ");
+                                    Platform.runLater(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            clientList.getItems().clear();
+                                            for (int i = 1; i < tokens.length; i++) {
+                                                clientList.getItems().add(tokens[i]);
+                                            }
+                                        }
+                                    });
+                                }
+                            } else {
                                 textArea.appendText(message + "\n");
                             }
                         }
 
-                        while (true) {
-                            String message = in.readUTF();
-                            if (message.equals("/serverclosed"))  {
-                                // closeApp();
-                                break;
-                            }
-                            textArea.appendText(message + "\n");
-                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     } finally {
@@ -148,6 +161,14 @@ public class Controller {
             out.writeUTF(textField.getText());
             textField.clear();
             textField.requestFocus();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getHistory() {
+        try {
+            out.writeUTF("/history ");
         } catch (IOException e) {
             e.printStackTrace();
         }
