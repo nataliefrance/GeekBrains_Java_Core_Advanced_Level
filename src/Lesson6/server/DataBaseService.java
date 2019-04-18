@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-class AuthService {
+class DataBaseService {
 
     // Объект, в котором будет храниться соединение с БД
     private static Connection connection;
@@ -58,46 +58,35 @@ class AuthService {
         }
     }
 
-    static void saveToHistory(String nick, String message) throws SQLException {
-        String sql = String.format("INSERT INTO 'history' ('message') VALUES('" + nick + ": " + message + "');");
+    static void saveHistory(String nick, String message) throws SQLException {
+        String sql = String.format("INSERT INTO history (message, nick)\n" +
+                "VALUES ('%s', '%s')", message, nick);
         stmt.execute(sql);
     }
 
-    static List<String> loadHistory() throws SQLException {
-        List<String> history = new ArrayList<>();
-
-        String sql = String.format("SELECT message FROM history");
+    static StringBuilder getHistoryChat() throws SQLException {
+        StringBuilder stringBuilder = new StringBuilder();
+        String sql = String.format("SELECT nick, message from history\n" +
+                "    ORDER BY ID");
         ResultSet rs = stmt.executeQuery(sql);
-
         while (rs.next()) {
-            history.add(rs.getString("message"));
+            stringBuilder.append(rs.getString("nick") + ": " + rs.getString("message") + "\n");
         }
-        return history;
+        return stringBuilder;
     }
 
-//    static List<String> loadBlacklist(String idNick) throws SQLException {
-//        List<String> blacklist = new ArrayList<>();
+
 //
-//        String sql = String.format("SELECT " + idNick + " FROM blacklist;");
+//    static List<String> loadHistory() throws SQLException {
+//        List<String> history = new ArrayList<>();
+//
+//        String sql = String.format("SELECT message FROM history");
 //        ResultSet rs = stmt.executeQuery(sql);
 //
 //        while (rs.next()) {
-//            blacklist.add(rs.getString(idNick));
+//            history.add(rs.getString("message"));
 //        }
-//        return blacklist;
-//    }
-
-//    static void saveBlacklist(String idNick, List<String> blacklist) throws SQLException {
-//
-//        //удаляем все предыдущие данные
-////        String delete = String.format("DELETE FROM 'blacklist';");
-////        stmt.execute(delete);
-//
-//        //запиываем новые значения
-//        for (String ignoreNick : blacklist) {
-//            String sql = String.format("INSERT INTO 'blacklist' ('" + idNick + "') VALUES('" + ignoreNick + "');");
-//            stmt.execute(sql);
-//        }
+//        return history;
 //    }
 
     static void disconnect() {
@@ -108,8 +97,3 @@ class AuthService {
         }
     }
 }
-/*
-    // --------Заполнение таблицы--------
-	public static void WriteDB() throws SQLException
-	{statmt.execute("INSERT INTO 'users' ('name', 'phone') VALUES ('Masha', 456123); ");}
-    */

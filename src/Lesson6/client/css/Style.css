@@ -9,16 +9,16 @@
     -fx-background-color: rgba(22, 133, 32, 0.83)
 }
 
-#chatArea {
+#textArea {
     -fx-text-fill: black;
     -fx-font-family: "Calibri";
     -fx-font-size: 14;
     -fx-background-image: url("../img/background.jpg");
 }
 
-#chatArea .viewport {
+#textArea .viewport {
     -fx-background-color: transparent;
 }
-#chatArea .content {
+#textArea .content {
     -fx-background-color: transparent;
 }

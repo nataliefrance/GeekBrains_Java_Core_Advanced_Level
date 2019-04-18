@@ -1,5 +1,8 @@
 package Lesson6.server;
 
+
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,13 +12,18 @@ import java.util.Vector;
 class MainServer {
     private Vector<ClientHandler> clients;
 
+    private Logger logger = Logger.getLogger("file");
+
     MainServer() throws SQLException {
+
+        logger.info("Start server");
+
         ServerSocket server = null;
         Socket socket = null;
         clients = new Vector<>();
 
         try {
-            AuthService.connect();
+            DataBaseService.connect();
             server = new ServerSocket(8190);
             System.out.println("Сервер запущен!");
 
@@ -26,29 +34,34 @@ class MainServer {
             }
 
         } catch (IOException e) {
+            logger.error("an exception has occurred " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
                 socket.close();
                 server.close();
             } catch (IOException e) {
+                logger.error("an exception has occurred " + e.getMessage());
                 e.printStackTrace();
             }
-            AuthService.disconnect();
+            DataBaseService.disconnect();
         }
     }
 
     void subscribe(ClientHandler client) {
         clients.add(client);
+        logger.info("Client " + client + " connect");
         broadcastClientlist();
     }
 
     void unsubscribe(ClientHandler client) {
         clients.remove(client);
+        logger.info("Client " + client + " disconnect");
         broadcastClientlist();
     }
 
     void broadcastMsg(ClientHandler from, String message) {
+        logger.info("Client " + from + " add msg:" + message);
         for (ClientHandler o : clients) {
             if (!from.checkBlackList(o.getNick())) {
                 o.sendMsg(message);

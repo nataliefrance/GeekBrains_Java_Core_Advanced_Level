@@ -24,16 +24,13 @@
 
     <HBox VBox.vgrow="ALWAYS">
         <VBox HBox.hgrow="ALWAYS">
-            <TextArea fx:id="chatArea" editable="false" VBox.vgrow="ALWAYS" />
+            <TextArea fx:id="textArea" editable="false" VBox.vgrow="ALWAYS" />
             <HBox fx:id="bottomPanel" managed="false" visible="false">
                 <TextField fx:id="textField" onAction="#sendMsg" promptText="Введите текст" HBox.hgrow="ALWAYS" />
                 <Button fx:id="btn" onAction="#sendMsg" text="Send" />
             </HBox>
         </VBox>
-        <ListView fx:id="clientList" prefWidth="200"/>
+        <ListView fx:id="clientList" prefWidth="250"/>
     </HBox>
 
 </VBox>
-
-<!--<ListView fx:id="clientList" onMouseClicked="#selectClient" prefWidth="200"/>-->
-        <!--managed="false" visible="false"-->

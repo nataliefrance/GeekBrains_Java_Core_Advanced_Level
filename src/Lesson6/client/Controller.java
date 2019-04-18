@@ -20,7 +20,7 @@ import javafx.scene.control.TextField;
 
 public class Controller {
     @FXML
-    TextArea chatArea;
+    TextArea textArea;
 
     @FXML
     TextField textField;
@@ -58,7 +58,7 @@ public class Controller {
     private void setAuthorized(boolean isAuthorized) {
         this.isAuthorized = isAuthorized;
         textAreas = new ArrayList<>();
-        textAreas.add(chatArea);
+        textAreas.add(textArea);
         if (!isAuthorized) {
             upperPanel.setVisible(true);
             upperPanel.setManaged(true);
@@ -98,7 +98,7 @@ public class Controller {
             socket = new Socket(IP_ADRESS, PORT);
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-
+            setAuthorized(false);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -114,7 +114,7 @@ public class Controller {
                                 }
                             }
                         }
-
+                        getHistory();
                         while (true) {
                             String message = in.readUTF();
                             if (message.startsWith("/")) {
@@ -134,7 +134,7 @@ public class Controller {
                                     });
                                 }
                             } else {
-                                chatArea.appendText(message + "\n");
+                                textArea.appendText(message + "\n");
                             }
                         }
 
@@ -166,10 +166,11 @@ public class Controller {
         }
     }
 
-    public void selectClient(MouseEvent mouseEvent) {
-        if(mouseEvent.getClickCount() == 1) {
-            PersonalStage ps = new PersonalStage(clientList.getSelectionModel().getSelectedItem(), out, textAreas);
-            ps.show();
+    private void getHistory() {
+        try {
+            out.writeUTF("/history ");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
